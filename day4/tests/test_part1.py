@@ -1,5 +1,4 @@
 from unittest import skip
-import re
 from day4.logic import parse_numbers, parse_line, detect_matches, calculate_score, score_pile
 
 EXAMPLE = '''Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
@@ -9,6 +8,8 @@ Card 4: 41 92 73 84 69 | 59 84 76 51 58  5 54 83
 Card 5: 87 83 26 28 32 | 88 30 70 12 93 22 82 36
 Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11'''
 
+
+REAL_LINE_EXAMPLE='Card   1: 58  6 71 93 96 38 25 29 17  8 | 79 33 93 58 53 96 71  8 67 90 17  6 46 85 64 25 73 32 18 52 77 16 63  2 38'
 # shopping list
 # 0. parse a line into its components
 # 1. find how many wonning cards
@@ -63,4 +64,7 @@ class TestPart1:
 
     def test_total_score_pile_on_example(self):
         assert score_pile(EXAMPLE) == 13
+        
+    def test_score_real_card(self):
+        assert calculate_score(REAL_LINE_EXAMPLE) == 256
 

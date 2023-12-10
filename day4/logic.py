@@ -1,5 +1,7 @@
+import re
+
 def parse_line(line):
-    parser = re.compile(r'^Card (\d+):((  ?\d?\d)+) \|((  ?\d?\d)+)')
+    parser = re.compile(r'^Card *(\d+):((  ?\d?\d)+) \|((  ?\d?\d)+)')
     result = parser.match(line).groups()
     return [int(result[0]), parse_numbers(result[1]), parse_numbers(result[3])]
 
