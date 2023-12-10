@@ -52,7 +52,7 @@ def is_before_a_symbol(x, y, str, table):
 	return is_symbol(table[y], x + len(str))
 
 
-SYMBOL_MATCHER = re.compile(r'[*$+#]')
+SYMBOL_MATCHER = re.compile(r'[^\d.]')
 
 
 def has_symbol(line, start, length):
