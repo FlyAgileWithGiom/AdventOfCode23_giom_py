@@ -13,16 +13,8 @@ SCHEMATIC_EXAMPLE = '''467..114..
 .664.598..'''
 
 SCHEMATIC_AS_TABLE = [
-    '467..114..',
-    '...*......',
-    '..35..633.',
-    '......#...',
-    '617*......',
-    '.....+.58.',
-    '..592.....',
-    '......755.',
-    '...$.*....',
-    '.664.598..'
+    '467..114..', '...*......', '..35..633.', '......#...', '617*......',
+    '.....+.58.', '..592.....', '......755.', '...$.*....', '.664.598..'
 ]
 
 
@@ -31,7 +23,7 @@ def to_xy_map(input):
 
 
 def scan_part_numbers(line):
-    return re.findall("(\d+)", line)
+    return re.findall(r'(\d+)', line)
 
 
 def is_adjacent(table, line, character, number_str):
@@ -52,11 +44,16 @@ def is_under_a_symbol(character, line, number_str, table):
     return has_symbol(table[line - 1], character - 1, len(number_str) + 2)
 
 
+def is_last_line_or_beyond(table, line):
+    last_line = len(table) - 1
+    return line >= last_line
+
+
 def is_over_a_symbol(character, line, number_str, table):
-    if line >= len(table) - 1:
+    if is_last_line_or_beyond(table, line):
         return False
-    if has_symbol(table[line + 1], character-1, len(number_str) + 2):
-        return False
+
+    return has_symbol(table[line + 1], character - 1, len(number_str) + 2)
 
 
 def is_after_a_symbol(character, line, table):
@@ -85,6 +82,7 @@ class TestDay3:
 
     def test_can_turn_input_into_lines(self):
         assert len(to_xy_map(SCHEMATIC_EXAMPLE)) == 10
+        assert len(to_xy_map(SCHEMATIC_EXAMPLE)[0]) == 10 
 
     def test_can_pick_up_numbers_on_a_line(self):
         assert scan_part_numbers("467..114..") == ['467', '114']
@@ -140,11 +138,5 @@ class TestDay3:
         assert not is_adjacent(['..617..', '.......', '.*.....'], 0, 2, '617')
 
     def test_detect_string_only_directly_under_a_symbol(self):
-        assert not is_adjacent(['..617..', '.......', '..*....'], 0, 2, '617')
+        assert not is_adjacent(['..*....', '.......','..617..'], 0, 2, '617')
 
-    @skip
-    def test_number_filtered_out_if_not_adjacent_to_symbol(self):
-        pass
-
-    def test_can_turn_input_into_xy_map(self):
-        assert len(to_xy_map(SCHEMATIC_EXAMPLE)[0]) == 10
