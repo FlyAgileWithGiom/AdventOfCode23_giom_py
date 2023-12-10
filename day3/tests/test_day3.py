@@ -89,7 +89,7 @@ class TestDay3:
         
     def test_detect_adjacent_or_not_on_first_line(self):
         assert is_adjacent(SCHEMATIC_AS_TABLE,0,0,'467')
-        assert not is_adjacent(SCHEMATIC_AS_TABLE,0,5,114)
+        assert not is_adjacent(SCHEMATIC_AS_TABLE,0,5,'114')
 
     @skip
     def test_detect_all_parts_on_line(self):

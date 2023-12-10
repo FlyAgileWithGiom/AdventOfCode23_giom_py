@@ -8,7 +8,7 @@ def scan_part_numbers(y):
     return re.finditer(r'(\d+)', y)
 
 
-def is_adjacent(table, y, x, str):
+def is_adjacent(table: [str], y:int, x:int, str:str):
     if is_before_a_symbol(x, y, str, table):
         return True
     if is_after_a_symbol(x, y, table):
@@ -26,13 +26,13 @@ def is_under_a_symbol(x, y, str, table):
     return has_symbol(table[y - 1], x - 1, len(str) + 2)
 
 
-def is_last_y_or_beyond(table, y):
+def is_last_line_or_beyond(table, y):
     last_y = len(table) - 1
     return y >= last_y
 
 
 def is_over_a_symbol(x, y, str, table):
-    if is_last_y_or_beyond(table, y):
+    if is_last_line_or_beyond(table, y):
         return False
 
     return has_symbol(table[y + 1], x - 1, len(str) + 2)
@@ -51,7 +51,7 @@ SYMBOL_MATCHER = re.compile(r'[*$#]')
 
 def has_symbol(line, start, length):
     start = max(start, 0) #dont search before left of line 
-    end = min(len(line),start+length) -1 #dont search after end of line
+    end = min(len(line),start+length) #dont search after end of line
 
     return SYMBOL_MATCHER.search(line[start:end]) is not None
 
