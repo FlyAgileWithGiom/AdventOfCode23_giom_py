@@ -1,5 +1,5 @@
 from unittest import skip
-from logic import to_xy_map, scan_part_numbers, has_symbol, is_adjacent, detect_parts, sum_part_numbers
+from logic import to_xy_map, scan_part_numbers, has_symbol, is_adjacent, detect_parts_in_line, sum_part_numbers
 
 SCHEMATIC_EXAMPLE = '''467..114..
 ...*......
@@ -26,10 +26,11 @@ class TestDay3:
         assert len(to_xy_map(SCHEMATIC_EXAMPLE)[0]) == 10
 
     
-    def test_is_symbol_detects_star_dollar_hashtag(self):
+    def test_is_symbol_detects_star_dollar_hashtag_plus(self):
         assert has_symbol('617*..', 3, 1)
         assert has_symbol('617$..', 3, 1)
         assert has_symbol('617#..', 3, 1)
+        assert has_symbol('617+..', 3, 1)
         assert not has_symbol('617..', 3, 1)
 
     def test_detect_string_not_before_a_symbol(self):
@@ -90,12 +91,11 @@ class TestDay3:
     def test_detect_adjacent_or_not_on_first_line(self):
         assert is_adjacent(SCHEMATIC_AS_TABLE,0,0,'467')
         assert not is_adjacent(SCHEMATIC_AS_TABLE,0,5,'114')
-
-    @skip
+    
     def test_detect_all_parts_on_line(self):
-        assert detect_parts(SCHEMATIC_AS_TABLE,0) == [467]
-
-    @skip
+        assert detect_parts_in_line(SCHEMATIC_AS_TABLE,0) == [467]
+        assert [detect_parts_in_line(SCHEMATIC_AS_TABLE,i) for i in range(0,len(SCHEMATIC_AS_TABLE))] == [[467],[],[35,633],[],[617],[],[592],[755],[],[664,598]]
+         
     def test_sum_all_part_numbers(self):
         assert sum_part_numbers(SCHEMATIC_EXAMPLE) == 4361
 
