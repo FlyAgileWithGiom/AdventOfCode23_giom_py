@@ -1,15 +1,23 @@
-NORTH_WEST = [-1, -1]
-NORTH_NORTH = [-1, 0]
-NORTH_EAST = [-1, 1]
-WEST_NORTH = [-1,-1]
-WEST_WEST = [0,-1]
-WEST_SOUTH = [1,-1]
-SOUTH_EAST = [1,-1]
-SOUTH_SOUTH = [1,0]
-SOUTH_WEST = [1,1]
-EAST_NORTH = [-1,1]
-EAST_EAST = [0,1]
-EAST_SOUTH = [1,1]
+from unittest import skip
+
+EXAMPLE_MAP = '''..F7.
+.FJ|.
+SJ.L7
+|F--J
+LJ...'''
+EXAMPLE_MAP_TABLE = EXAMPLE_MAP.splitlines()
+NORTH_WEST = [[-1,0],[0, -1]]
+NORTH_NORTH = [[-1, 0],[-1,0]]
+NORTH_EAST = [[-1,0],[0, 1]]
+WEST_NORTH = [[0,-1],[-1,0]]
+WEST_WEST = [[0,-1],[0,-1]]
+WEST_SOUTH = [[0,-1],[1,0]]
+SOUTH_EAST = [[1,0],[0,-1]]
+SOUTH_SOUTH = [[1,0],[1,0]]
+SOUTH_WEST = [[1,0],[0,1]]
+EAST_NORTH = [[0,1],[-1,0]]
+EAST_EAST = [[0,1],[0,1]]
+EAST_SOUTH = [[0,1],[1,0]]
 
 
 def detect_pipe(map, pos, direction):
@@ -49,9 +57,46 @@ def detect_pipe(map, pos, direction):
 
 def update_path(path, connected_pipe):
     pos = path[-1]
-    new_pos = [pos[0] + connected_pipe[0], pos[1] + connected_pipe[1]]
-    path.append(new_pos)
+    for step in connected_pipe:
+        pos = [pos[0] + step[0], pos[1] + step[1]]
+        path.append(pos)
     return path
+
+
+def detect_start_point(map:[str]):
+    for y in range(0, len(map)):
+        x = map[y].find('S')
+        if x != -1:
+            return [y, x]
+
+
+def track_loop(map):
+    path = [detect_start_point(map)]
+    path = follow_loop(map, path)
+    return path
+
+
+def follow_loop(map, path, last_direction = None):
+    connected_pipe = detect_connected_pipe(map, path, last_direction)
+
+    path = update_path(path, connected_pipe)
+    return path
+
+def reverse_direction(direction):
+    reverse = {'south':'north','west':'east','east':'west','north':'south', None:None}
+    return reverse[direction]
+
+def detect_connected_pipe(map, path, last_direction):
+    connected_pipe = None
+
+    possible_directions = ['north', 'west', 'south', 'east']
+
+    for direction in possible_directions:
+        if direction != reverse_direction(last_direction):
+            connected_pipe = detect_pipe(map, path[-1], direction)
+            if connected_pipe is not None:
+                break
+    return connected_pipe
 
 
 class TestPart1:
@@ -121,13 +166,13 @@ class TestPart1:
 
     def test_update_path_extends_path(self):
         path = update_path([[1, 1]], NORTH_NORTH)
-        assert len(path) == 2
+        assert len(path) == 3
 
     def test_update_path_connected_north_updates_position(self):
         path = update_path([[1, 1]], NORTH_WEST)
-        assert path == [[1,1],[0,0]]
+        assert path == [[1,1],[0,1],[0,0]]
         path = update_path([[1, 1]], NORTH_NORTH)
-        assert path[-1] == [0, 1]
+        assert path[-1] == [-1, 1]
         path = update_path([[1, 1]], NORTH_EAST)
         assert path[-1] == [0, 2]
 
@@ -135,7 +180,7 @@ class TestPart1:
         path = update_path([[1, 1]], WEST_NORTH)
         assert path[-1] == [0,0]
         path = update_path([[1, 1]], WEST_WEST)
-        assert path[-1] == [1,0]
+        assert path[-1] == [1,-1]
         path = update_path([[1, 1]], WEST_SOUTH)
         assert path[-1] == [2,0]
 
@@ -143,6 +188,36 @@ class TestPart1:
         path = update_path([[1, 1]], EAST_NORTH)
         assert path[-1] == [0,2]
         path = update_path([[1, 1]], EAST_EAST)
-        assert path[-1] == [1,2]
+        assert path[-1] == [1,3]
         path = update_path([[1, 1]], EAST_SOUTH)
         assert path[-1] == [2,2]
+
+    def test_detect_start_point(self):
+        map = ['...', '.SJ', '...']
+        assert detect_start_point(map) == [1,1]
+        map = ['...', '...', '..S']
+        assert detect_start_point(map) == [2, 2]
+
+
+    def test_track_loop_start_at_animal_postion(self):
+        assert track_loop(EXAMPLE_MAP_TABLE)[0] == [2, 0]
+
+    def test_follow_loop_tolerates_no_starting_direction(self):
+        assert follow_loop(EXAMPLE_MAP_TABLE, [[2, 0]])[1] in ([3, 0],[2,1])
+
+    def test_follow_loop_follow_first_connected_pipe_south(self):
+        assert follow_loop(EXAMPLE_MAP_TABLE,[[2,0]],'west')[1] == [3, 0]
+        assert follow_loop(EXAMPLE_MAP_TABLE,[[2,0]],'west')[2] == [4, 0]
+
+    def test_follow_loop_follow_first_connected_pipe_east(self):
+        assert follow_loop(EXAMPLE_MAP_TABLE, [[4, 0]], 'south')[1] == [4, 1]
+        assert follow_loop(EXAMPLE_MAP_TABLE, [[4, 0]], 'south')[2] == [3, 1]
+
+    def test_follow_loop_follow_first_connected_pipe_north(self):
+        assert follow_loop(EXAMPLE_MAP_TABLE, [[4, 1]], 'east')[1] == [3, 1]
+
+    def test_follow_loop_follow_first_connected_pipe_west(self):
+        assert follow_loop(EXAMPLE_MAP_TABLE, [[2, 4]], 'west')[2] == [1, 3]
+
+    def test_follow_loop_keep_following_pipe(self):
+        assert track_loop(EXAMPLE_MAP_TABLE)[1] == [3, 0]
